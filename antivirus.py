@@ -4,6 +4,7 @@ import hashlib
 import zlib
 import StringIO
 import scanmod
+import curemod
 
 VirusDB = []
 vdb = []
@@ -84,6 +85,6 @@ if __name__ == '__main__':
 
     if ret == True:
         print("{} : {}".format(fname, vname))
-        os.remove(fname)
+        curemod.CureDelete(fname)
     else:
         print("{} : ok".format(fname))
