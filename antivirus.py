@@ -2,7 +2,7 @@ import sys
 import os
 import hashlib
 import zlib
-import StringIO
+import io
 import scanmod
 import curemod
 
@@ -21,20 +21,22 @@ def DecodeKMD(fname):
         fmd5 = buf[-32:]
 
         f = buf2
+
         for i in range(3):
             md5 = hashlib.md5()
             md5.update(f)
-            f = md5.hexdigest()
+            f = md5.hexdigest().encode('utf-8')
 
         if f != fmd5:
             raise SystemError
-        
-        buf3 = ''
+
+        buf3 = b''
         for c in buf[4:]:
-            buf3 += chr(ord(c) ^ 0xFF)
-        
+            buf3 += bytes([c ^ 0xFF])
+
         buf4 = zlib.decompress(buf3)
-        return buf4
+        return buf4.decode('utf-8')
+
     except:
         pass
 
@@ -42,7 +44,7 @@ def DecodeKMD(fname):
 
 def LoadVirusDB():
     buf = DecodeKMD('virus.kmd')
-    fp = StringIO.StringIO(buf)
+    fp = io.StringIO(buf)
 
     while True:
         line = fp.readline()

@@ -52,6 +52,6 @@ def ScanVirus(vdb, vsize, sdb, fname):
             ret = True
             vname = t[2]
             break
-    fp.clsoe()
+    fp.close()
 
     return ret, vname

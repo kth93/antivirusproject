@@ -10,23 +10,25 @@ def DecodeKMD(fname):
         return
     fp = open(fname, 'rb')
     buf = fp.read()
+
     fp.close()
 
     buf2 = buf[:-32]
     fmd5 = buf[-32:]
 
     f = buf2
+
     for i in range(3):
         md5 = hashlib.md5()
         md5.update(f)
-        f = md5.hexdigest()
+        f = bytes(md5.hexdigest(), encoding='utf-8')
 
     if f != fmd5:
         raise SystemError
 
-    buf3 = ''
+    buf3 = b''
     for c in buf[4:]:
-        buf3 += chr(ord(c) ^ 0xFF)
+        buf3 += bytes([c ^ 0xFF])
 
     buf4 = zlib.decompress(buf3)
 
@@ -47,17 +49,17 @@ def EncryptKMD(fname) :
 
     buf2 = zlib.compress(buf)
 
-    buf3 = ''
+    buf3 = b''
     for c in buf2:
-        buf3 += chr(ord(c) ^ 0xFF)
+        buf3 += bytes([c ^ 0xFF])
 
-    buf4 = 'KAVM' + buf3
+    buf4 = b'KAVM' + buf3
 
     f = buf4
     for i in range(3):
         md5 = hashlib.md5()
         md5.update(f)
-        f = md5.hexdigest()
+        f = bytes(md5.hexdigest(), encoding='utf-8')
     
     buf4 += f
 
@@ -83,4 +85,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
