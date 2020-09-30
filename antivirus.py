@@ -1,3 +1,4 @@
+import imp
 import sys
 import os
 import hashlib
@@ -96,7 +97,16 @@ if __name__ == '__main__':
 
     fname = sys.argv[1]
 
-    ret, vname = scanmod.ScanVirus(vdb, vsize, sdb, fname)
+    try:
+        # Module Dynamic Loading, Need to update for Python3 using importlib
+        m = 'scanmod'
+        f, filename, desc = imp.find_module(m, ['']) # find moudle in current directory
+        module = imp.load_module(m, f, filename, desc)
+        print(m, f, filename, desc)
+        cmd = 'ret, vname = module.ScanVirus(vdb, vsize, sdb, fname)'
+        exec(cmd)
+    except:
+        ret, vname = scanmod.ScanVirus(vdb, vsize, sdb, fname)
 
     if ret == True:
         print("{} : {}".format(fname, vname))
