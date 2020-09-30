@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 2:
         print('Usage : antivirus.py [file]')
-        exit()
+        sys.exit(0)
 
     fname = sys.argv[1]
 
