@@ -22,7 +22,7 @@ def __ext_euclid(a, b):
     list_y.append(0)
     list_y.append(1)
 
-        i = 2
+    i = 2
 
     while 1:
         list_r.append(list_r[i - 2] % list_r[i - 1])
@@ -145,13 +145,13 @@ def create_key(pu_fname='key.prk', pr_fname='key.skr', debug=False):
     pr_data = base64.b64encode(marshal.dumps(pr))
 
     try:
-        open(pu_fname, 'wt').write(pu_data)
-        open(pr_fname, 'wt').write(pr_data)
+        open(pu_fname, 'wt').write(pu_data.decode('utf-8'))
+        open(pr_fname, 'wt').write(pr_data.decode('utf-8'))
     except IOError:
         return False
 
     if debug:
-        print '[*] Make key : %s, %s' % (pu_fname, pr_fname)
+        print('* Make key : {} {}'.format(pu_fname, pr_fname))
 
     return True
 
