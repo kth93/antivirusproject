@@ -10,6 +10,6 @@ if __name__ == '__main__':
         pr_fname = sys.argv[2]
     elif len(sys.argv) != 1:
         print('Usage : mkkey.py [[PU filename] [PR filename]]')
-        exit(0)
+        sys.exit(0)
     
     k2rsa.create_key(pu_fname, pr_fname, True)
