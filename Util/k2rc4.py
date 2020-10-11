@@ -13,16 +13,15 @@ class RC4:
     
     def crypt(self, data):
         t_str = []
-
         for i in range(len(data)):
-            t_str.append(ord(data[i]))
+            t_str.append(data[i])
 
         for i in range(len(t_str)):
             t_str[i] ^= self.__gen_k()
 
-        ret_s = ''
+        ret_s = b''
         for i in range(len(t_str)):
-            ret_s += chr(t_str[i])
+            ret_s += bytes([t_str[i]])
         
         return ret_s
 

@@ -14,8 +14,8 @@ def make(src_fname, debug=False):
     fname = src_fname
 
     if fname.split('.')[-1] == 'py':
-        py_compile.compile(fname)
         pyc_name = fname + 'c'
+        py_compile.compile(fname, pyc_name)
     else:
         pyc_name = fname.split('.')[0] + '.pyc'
         shutil.copy(fname, pyc_name)
@@ -30,7 +30,7 @@ def make(src_fname, debug=False):
         return False
     
     # Header
-    kmd_data = 'KAVM'
+    kmd_data = b'KAVM'
 
     ret_date = k2timelib.get_now_date()
     ret_time = k2timelib.get_now_time()
@@ -38,7 +38,7 @@ def make(src_fname, debug=False):
     val_date = struct.pack('<H', ret_date)
     val_time = struct.pack('<H', ret_time)
 
-    reserved_buf = val_date + val_time + (chr(0) * 28)
+    reserved_buf = val_date + val_time + (bytes(0) * 28)
 
     kmd_data += reserved_buf
 
@@ -46,7 +46,7 @@ def make(src_fname, debug=False):
 
     # Body
     while 1:
-        tmp_kmd_data = ''
+        tmp_kmd_data = b''
 
         key = '' # RC4 algorithm
 
@@ -63,7 +63,7 @@ def make(src_fname, debug=False):
 
         # validate key
         if key == d_key and len(key) == len(d_key):
-            tmp_kmd_data += e_key
+            tmp_kmd_data += bytes(e_key, encoding='utf-8')
 
             buf1 = open(pyc_name, 'rb').read()
             buf2 = zlib.compress(buf1)
@@ -86,12 +86,11 @@ def make(src_fname, debug=False):
             md5 = hashlib.md5()
             md5hash = kmd_data + tmp_kmd_data
 
-            # f = bytes(md5.hexdigest(), encoding='utf-8')
             for i in range(3):
                 md5.update(md5hash)
-                md5hash = md5.hexdigest()
+                md5hash = bytes(md5.hexdigest(), encoding='utf-8') 
             
-            m = md5hash.decode('hex')
+            m = md5hash.decode('utf-8')
 
             e_md5 = k2rsa.crypt(m, rsa_pr) # encrypt md5 using private key
             if len(e_md5) != 32:
@@ -101,7 +100,7 @@ def make(src_fname, debug=False):
             d_md5 = k2rsa.crypt(e_md5, rsa_pu) # decrypt encrypted md5 using public key
 
             if m == d_md5:
-                kmd_data += tmp_kmd_data + e_md5
+                kmd_data += tmp_kmd_data + bytes(e_md5, encoding='utf-8')
                 break
             else:
                 print('d_md5 decrypt error')
@@ -117,7 +116,7 @@ def make(src_fname, debug=False):
             os.remove(pyc_name)
 
             if debug:
-                print('Success: {0:-13s} -> {1:s}'.format(fname, kmd_name))
+                print('Success: {0:>13s} -> {1:<s}'.format(fname, kmd_name))
             return True
         else:
             raise IOError
