@@ -26,7 +26,7 @@ def __ext_euclid(a, b):
 
     while 1:
         list_r.append(list_r[i - 2] % list_r[i - 1])
-        list_q.append(list_r[i - 2] / list_r[i - 1])
+        list_q.append(list_r[i - 2] // list_r[i - 1])
 
         if list_r[i] == 0:
             d = list_r[i - 1]
