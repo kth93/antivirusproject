@@ -125,3 +125,33 @@ def make(src_fname, debug=False):
         if debug:
             print('Fail: {}'.format(fname))
         return False
+
+def ntimes_md5(buf, ntimes):
+    md5 = hashlib.md5()
+    md5hash = buf
+    for i in range(ntimes):
+        md5.update(md5hash)
+        md5hash = bytes(md5.hexdigest(), encoding='utf-8')
+
+class KMDFormatError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+class KMDConstants:
+    KMD_SIGNATURE = 'KAVM'
+
+    KMD_DATE_OFFSET = 4
+    KMD_DATE_LENGTH = 2
+    KMD_TIME_OFFSET = 6
+    KMD_TIME_LENGTH = 2
+
+    KMD_RESERVED_OFFSET = 8
+    KMD_RESERVED_LENGTH = 28
+
+    KMD_RC4_KEY_OFFSET = 36
+    KMD_RC4_KEY_LENGTH = 32
+
+    KMD_MD5_OFFSET = -32
