@@ -155,3 +155,17 @@ class KMDConstants:
     KMD_RC4_KEY_LENGTH = 32
 
     KMD_MD5_OFFSET = -32
+
+class KMD(KMDConstants):
+    def __init__(self, fname, pu):
+        self.filename = fname
+        self.date = None
+        self.time = None
+        self.body = None
+
+        self.__kmd_data = None
+        self.__rsa_pu = pu
+        self.__rc4_key = None
+
+        if self.filename:
+            self.__decrypt(self.fname)
