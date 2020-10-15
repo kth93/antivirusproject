@@ -168,4 +168,51 @@ class KMD(KMDConstants):
         self.__rc4_key = None
 
         if self.filename:
-            self.__decrypt(self.fname)
+            self.__decrypt(self.filename)
+
+    def  __decrypt(self, fname, debug=False):
+        with open(fname, 'rb') as fp:
+            if fp.read(4) == self.KMD_SIGNATURE:
+                self.__kmd_data = self.KMD_SIGNATURE + fp.read()
+            else:
+                raise KMDFormatError('KMD Header magic not found.')
+        
+        tmp = self.__kmd_data[self.KMD_DATE_OFFSET:self.KMD_DATE_OFFSET+self.KMD_DATE_LENGTH]
+        self.date = k2timelib.convert_date(struct.unpack('<H', tmp)[0])
+
+        tmp = self.__kmd_data[self.KMD_TIME_OFFSET:self.KMD_TIME_OFFSET+self.KMD_TIME_LENGTH]
+        self.time = k2timelib.convert_time(struct.unpack('<H', tmp)[0])
+
+        e_md5hash = self.__get_md5()
+
+        md5hash = ntimes_md5(self.__kmd_data[:self.KMD_MD5_OFFSET], 3)
+
+        if e_md5hash == md5hash.decode('utf-8'):
+            raise KMDFormatError('Invalid KMD MD5 hash.')
+
+        self.__rc4_key = self.__get_rc4_key()
+
+        e_kmd_data = self.__get_body()
+
+        if debug:
+            print("encrypted KMD Data Length:", len(e_kmd_data))
+
+        self.body = zlib.decompress(e_kmd_data)
+
+        if debug:
+            print("decrypted KMD Data Length:", len(self.body))
+
+    def __get_rc4_key(self):
+        e_key = self.__kmd_data[self.KMD_RC4_KEY_OFFSET:self.KMD_RC4_KEY_OFFSET+self.KMD_RC4_KEY_LENGTH]
+        return k2rsa.crypt(e_key, self.__rsa_pu)
+    
+    def __get_body(self):
+        e_kmd_data = self.__kmd_data[self.KMD_RC4_KEY_OFFSET+self.KMD_RC4_KEY_LENGTH:self.KMD_MD5_OFFSET]
+        r = k2rc4.RC4()
+        r.set_key(self.__rc4_key)
+        return r.crypt(e_kmd_data)
+    
+    def __get_md5(self):
+        e_md5 = self.__kmd_data[self.KMD_MD5_OFFSET:]
+        return k2rsa.crypt(e_md5, self.__rsa_pu)
+
