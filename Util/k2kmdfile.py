@@ -89,7 +89,7 @@ def make(src_fname, debug=False):
 
             for i in range(3):
                 md5.update(md5hash)
-                md5hash = md5.hexdigest().encode()
+                md5hash = md5.hexdigest().encode('utf-8')
             
             m = md5hash
 
@@ -103,9 +103,6 @@ def make(src_fname, debug=False):
             if m == d_md5:
                 kmd_data += tmp_kmd_data + e_md5
                 break
-            else:
-                print('d_md5 decrypt error')
-                continue
             
     # make KMD file
     ext = fname.find('.')
