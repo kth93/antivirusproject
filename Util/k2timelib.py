@@ -6,7 +6,7 @@ def convert_date(t):
     m = (t & 0x01E0) >> 5
     d = (t & 0x001F)
 
-    print('%04d-%02d-%02d' % (y, m, d))
+    # print('%04d-%02d-%02d' % (y, m, d))
     return y, m, d
 
 # t is 2byte time obejct
@@ -15,7 +15,7 @@ def convert_time(t):
     m = (t & 0x07E0) >> 5
     s = (t & 0x001F) * 2
 
-    print('%02d-%02d-%02d' % (h, m, s))
+    # print('%02d-%02d-%02d' % (h, m, s))
     return h, m, s
 
 # convert now_date to 2byte date object

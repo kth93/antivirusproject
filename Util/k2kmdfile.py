@@ -9,6 +9,7 @@ import zlib
 import k2rc4
 import k2rsa
 import k2timelib
+import binascii
 
 def make(src_fname, debug=False):
     fname = src_fname
@@ -38,7 +39,7 @@ def make(src_fname, debug=False):
     val_date = struct.pack('<H', ret_date)
     val_time = struct.pack('<H', ret_time)
 
-    reserved_buf = val_date + val_time + (bytes(0) * 28)
+    reserved_buf = val_date + val_time + bytes(28)
 
     kmd_data += reserved_buf
 
@@ -48,22 +49,22 @@ def make(src_fname, debug=False):
     while 1:
         tmp_kmd_data = b''
 
-        key = '' # RC4 algorithm
+        key = b'' # RC4 algorithm
 
         for i in range(16):
-            key += chr(random.randint(0, 0xff))
+            key += bytes([random.randint(0, 0xff)])
 
         e_key = k2rsa.crypt(key, rsa_pr) # RC4 key encrypt using prviate key
 
         if len(e_key) != 32:
             print('key encrypt error')
-            return False
+            continue
 
         d_key = k2rsa.crypt(e_key, rsa_pu)
 
         # validate key
         if key == d_key and len(key) == len(d_key):
-            tmp_kmd_data += bytes(e_key, encoding='utf-8')
+            tmp_kmd_data += e_key
 
             buf1 = open(pyc_name, 'rb').read()
             buf2 = zlib.compress(buf1)
@@ -78,7 +79,7 @@ def make(src_fname, debug=False):
 
             if e_rc4.crypt(buf3) != buf2:
                 print('image encrypt error')
-                return False
+                continue
 
             tmp_kmd_data += buf3
 
@@ -88,23 +89,23 @@ def make(src_fname, debug=False):
 
             for i in range(3):
                 md5.update(md5hash)
-                md5hash = bytes(md5.hexdigest(), encoding='utf-8') 
+                md5hash = md5.hexdigest().encode()
             
-            m = md5hash.decode('utf-8')
+            m = md5hash
 
             e_md5 = k2rsa.crypt(m, rsa_pr) # encrypt md5 using private key
             if len(e_md5) != 32:
                 print('e_md5 encrypt error')
-                return False
+                continue
 
             d_md5 = k2rsa.crypt(e_md5, rsa_pu) # decrypt encrypted md5 using public key
 
             if m == d_md5:
-                kmd_data += tmp_kmd_data + bytes(e_md5, encoding='utf-8')
+                kmd_data += tmp_kmd_data + e_md5
                 break
             else:
                 print('d_md5 decrypt error')
-                return False
+                continue
             
     # make KMD file
     ext = fname.find('.')
@@ -131,7 +132,9 @@ def ntimes_md5(buf, ntimes):
     md5hash = buf
     for i in range(ntimes):
         md5.update(md5hash)
-        md5hash = bytes(md5.hexdigest(), encoding='utf-8')
+        md5hash = md5.hexdigest().encode()
+
+    return md5hash
 
 class KMDFormatError(Exception):
     def __init__(self, value):
@@ -141,7 +144,7 @@ class KMDFormatError(Exception):
         return repr(self.value)
 
 class KMDConstants:
-    KMD_SIGNATURE = 'KAVM'
+    KMD_SIGNATURE = b'KAVM'
 
     KMD_DATE_OFFSET = 4
     KMD_DATE_LENGTH = 2
@@ -197,7 +200,7 @@ class KMD(KMDConstants):
         if debug:
             print("encrypted KMD Data Length:", len(e_kmd_data))
 
-        self.body = zlib.decompress(e_kmd_data)
+        self.body = zlib.decompress(e_kmd_data) # python byte code
 
         if debug:
             print("decrypted KMD Data Length:", len(self.body))

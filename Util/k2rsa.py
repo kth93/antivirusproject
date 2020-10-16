@@ -110,11 +110,11 @@ def __get_ed(n):
             return t, x
 
 def __value_to_string(val):
-    ret = ''
+    ret = b''
     for i in range(32):
         b = val & 0xff
         val >>= 8
-        ret += chr(b)
+        ret += bytes([b])
 
         if val == 0:
             break
@@ -123,7 +123,7 @@ def __value_to_string(val):
 def __string_to_value(buf):
     plantext_ord = 0
     for i in range(len(buf)):
-        plantext_ord |= ord(buf[i]) << (i * 8)
+        plantext_ord |= buf[i] << (i * 8)
 
     return plantext_ord
 
@@ -145,8 +145,8 @@ def create_key(pu_fname='key.prk', pr_fname='key.skr', debug=False):
     pr_data = base64.b64encode(marshal.dumps(pr))
 
     try:
-        open(pu_fname, 'wt').write(pu_data.decode('utf-8'))
-        open(pr_fname, 'wt').write(pr_data.decode('utf-8'))
+        open(pu_fname, 'wt').write(pu_data.decode())
+        open(pr_fname, 'wt').write(pr_data.decode())
     except IOError:
         return False
 
