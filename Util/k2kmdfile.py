@@ -9,7 +9,8 @@ import zlib
 import k2rc4
 import k2rsa
 import k2timelib
-import binascii
+import marshal
+import types
 
 def make(src_fname, debug=False):
     fname = src_fname
@@ -133,6 +134,17 @@ def ntimes_md5(buf, ntimes):
 
     return md5hash
 
+def load(mod_name, buf):
+    if buf[:4] == b'550D0D0A':  # Varies by vresion
+        code = marshal.loads(buf[16:])
+        module = types.ModuleType(mod_name)
+        exec(code, module.__dict__)
+        sys.modules[mod_name] = module
+
+        return module
+    else:
+        return None
+
 class KMDFormatError(Exception):
     def __init__(self, value):
         self.value = value
@@ -215,4 +227,3 @@ class KMD(KMDConstants):
     def __get_md5(self):
         e_md5 = self.__kmd_data[self.KMD_MD5_OFFSET:]
         return k2rsa.crypt(e_md5, self.__rsa_pu)
-
