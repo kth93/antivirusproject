@@ -98,6 +98,32 @@ class EngineInstance:
 
         self.kavmain_inst = [] # plugins's KavMain Instance
 
+    def init(self):
+        t_kavmain_inst = [] # the final instance list
+
+        if self.debug:
+            print('[*] KavMain.init() :')
+
+        for inst in self.kavmain_inst:
+            try:
+                ret = inst.init(self.plugins_path) # call plugin engine's init function
+                if not ret:
+                    t_kavmain_inst.append(inst)
+
+                    if self.debug:
+                        print('[-] %s.init() : %d' % (inst.__module__, ret))
+            except AttributeError:
+                continue
+
+        self.kavmain_inst = t_kavmain_inst
+
+        if len(self.kavmain_inst):
+            if self.debug:
+                print('[*] Count of KavMain.init() : %d' % (len(self.kavmain_inst)))
+            return True
+        else:
+            return False
+
     def create(self, kmd_modules):
         for mod in kmd_modules:
             try:
