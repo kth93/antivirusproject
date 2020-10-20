@@ -124,6 +124,18 @@ class EngineInstance:
         else:
             return False
 
+    def uninit(self):
+        if self.debug:
+            print('[*] KavMain.uninit() :')
+
+        for inst in self.kavmain_inst:
+            try:
+                ret = inst.uninit()
+                if self.debug:
+                    print('[-] %s.uninit() : %d' % (inst.__module__, ret))
+            except AttributeError:
+                continue
+
     def create(self, kmd_modules):
         for mod in kmd_modules:
             try:
