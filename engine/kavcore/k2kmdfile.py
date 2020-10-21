@@ -136,7 +136,7 @@ def ntimes_md5(buf, ntimes):
     return md5hash
 
 def load(mod_name, buf):
-    if buf[:4] == bytes.fromhex('550D0D0A'):  # Varies by vresion
+    if buf[:4] == b'\x55\x0D\x0D\x0A': # bytes.fromhex('550D0D0A'), Varies by vresion
         code = marshal.loads(buf[16:])
         module = types.ModuleType(mod_name)
         exec(code, module.__dict__)
