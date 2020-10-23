@@ -243,3 +243,20 @@ class EngineInstance:
             pass
         
         return False, '', -1, -1
+
+    def disinfect(self, filename, malware_id, engine_id):
+        ret = False
+
+        if self.debug:
+            print('[*] KavMain.disinfect() :')
+
+        try:
+            inst = self.kavmain_inst[engine_id]
+            ret = inst.disinfect(filename, malware_id)
+
+            if self.debug:
+                print('    [-] %s.disinfect() : %s' % (inst.__module__, ret))
+        except AttributeError:
+            pass
+
+        return ret
