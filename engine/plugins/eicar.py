@@ -1,5 +1,5 @@
 import os
-import hashlib
+import cryptolib
 
 class KavMain:
     def init(self, plugins_path):
@@ -14,12 +14,10 @@ class KavMain:
 
             size = os.path.getsize(filename)
             if size == 68:
-                m = hashlib.md5()
-                m.update(mm[:68])
-                fmd5 = m.hexdigest() # please check
+                fmd5 = cryptolib.md5(mm[:68])
 
                 if fmd5 == '44d88612fea8a8f36de82e1278abb02f':
-                    return True
+                    return True, 'EICAR-Test-File (not a virus)', 0
 
         except IOError:
             pass
@@ -47,7 +45,7 @@ class KavMain:
         info = dict()
 
         info['author'] = 'kth93'
-        info['version'] = '1.0'
+        info['version'] = '1.1'
         info['title'] = 'EICAR Scan Engine'
         info['kmd_name'] = 'eicar'
 
