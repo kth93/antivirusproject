@@ -9,10 +9,20 @@ class KavMain:
         pat = r'(\d+)\s+0\s+obj\s*<<.+>>\s*?stream\s*([\d\D]+?)\s*endstream\s+endobj'
         self.p_pdf_obj = re.compile(pat, re.IGNORECASE)
 
-        pat = '/Filter\s+/(\w+)'
+        pat = r'/Filter\s+/(\w+)'
         self.p_pdf_filter = re.compile(pat, re.IGNORECASE)
 
         return 0
 
     def uninit(self):
         return 0
+
+    def getinfo(self):
+        info = dict()
+        
+        info['author'] = 'kth93'
+        info['version'] = '1.0'
+        info['title'] = 'PDF Engine'
+        info['kmd_name'] = 'pdf'
+
+        return info
