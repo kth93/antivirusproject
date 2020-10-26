@@ -26,3 +26,30 @@ class KavMain:
         info['kmd_name'] = 'pdf'
 
         return info
+
+    def unarc(self, arc_engine_id, arc_name, fname_in_arc):
+        if arc_engine_id == 'arc_pdf':
+            buf = ''
+
+            try:
+                with open(arc_name, 'rb') as fp:
+                    buf = fp.read()
+            except IOError:
+                return None
+            
+            for obj in self.p_pdf_obj.finditer(buf):
+                obj_id = obj.groups()[0]
+                if obj_id == fname_in_arc[5:]: # need decompress?
+                    data = obj.groups()[1]
+
+                    t = self.p_pdf_filter.search(obj.group())
+                    if (t is not None) and (t.group()[0].lower() == 'flatedecode'):
+                        try:
+                            data = zlib.decompress(data)
+                        except zlib.error:
+                            pass
+
+                    # print(data)
+                    return data
+        
+        return None
