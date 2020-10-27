@@ -9,6 +9,7 @@ import curemod
 
 VirusDB = []
 vdb = []
+
 vsize = []
 sdb = []
 
